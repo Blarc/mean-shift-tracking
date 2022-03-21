@@ -1,5 +1,6 @@
 import math
 
+import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
@@ -11,6 +12,7 @@ def generate_responses_1():
     responses[70, 50] = 1
     responses[50, 70] = 0.5
     return gausssmooth(responses, 10)
+
 
 def get_patch(img, center, sz):
     # crop coordinates
@@ -84,6 +86,16 @@ def backproject_histogram(patch, histogram, nbins):
     # use histogram us a lookup table for pixel backprojection
     backprojection = np.reshape(histogram[bin_idxs.flatten()], (patch.shape[0], patch.shape[1]))
     return backprojection
+
+
+def show_image(img, wait_key, title):
+    cv2.imshow(title, img)
+    cv2.waitKey(wait_key)
+
+
+def show_histogram(histogram):
+    plt.hist(histogram, bins=len(histogram))
+    plt.show()
 
 
 # base class for tracker
