@@ -2,15 +2,13 @@ import time
 
 import cv2
 
+from mean_shift_tracker import MSParams, MeanShiftTracker
 from sequence_utils import VOTSequence
 from ncc_tracker_example import NCCTracker, NCCParams
 
-# from ms_tracker import MeanShiftTracker, MSParams
-
-
 # set the path to directory where you have the sequences
-dataset_path = ''  # TODO: set to the dataet path on your disk
-sequence = 'bolt1'  # choose the sequence you want to test
+dataset_path = 'data'
+sequence = 'bolt'  # choose the sequence you want to test
 
 # visualization and setup parameters
 win_name = 'Tracking window'
@@ -24,10 +22,11 @@ sequence = VOTSequence(dataset_path, sequence)
 init_frame = 0
 n_failures = 0
 # create parameters and tracker objects
-parameters = NCCParams()
-tracker = NCCTracker(parameters)
-# parameters = MSParams()
-# tracker = MeanShiftTracker(parameters)
+# parameters = NCCParams()
+# tracker = NCCTracker(parameters)
+
+parameters = MSParams()
+tracker = MeanShiftTracker(parameters)
 
 time_all = 0
 
