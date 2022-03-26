@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 .idea/
 /data/
+/vot2016/
+/vot2016/

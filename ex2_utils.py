@@ -55,6 +55,21 @@ def create_epanechnik_kernel(width, height, sigma):
     kernel[kernel < 0] = 0
     return kernel
 
+def create_uniform_kernel(width, height, sigma):
+    # make sure that width and height are odd
+    w2 = int(math.floor(width / 2))
+    h2 = int(math.floor(height / 2))
+
+    [X, Y] = np.meshgrid(np.arange(-w2, w2 + 1), np.arange(-h2, h2 + 1))
+    X = X / np.max(X)
+    Y = Y / np.max(Y)
+
+    kernel = (1 - ((X / sigma) ** 2 + (Y / sigma) ** 2))
+    kernel = kernel / np.max(kernel)
+    kernel[kernel < 0] = 0
+    kernel[kernel > 0] = 1
+    return kernel
+
 
 def extract_histogram(patch, nbins, weights=None):
     # Note: input patch must be a BGR image (3 channel numpy array)
@@ -96,6 +111,11 @@ def show_image(img, wait_key, title):
 def show_histogram(histogram):
     plt.hist(histogram, bins=len(histogram))
     plt.show()
+
+
+def normalize_histogram(histogram):
+    histogram_sum = sum(histogram)
+    return np.array([x / histogram_sum for x in histogram])
 
 
 # base class for tracker

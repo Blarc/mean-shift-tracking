@@ -13,7 +13,7 @@ class NCCTracker(Tracker):
             y_ = np.array(region[1::2])
             region = [np.min(x_), np.min(y_), np.max(x_) - np.min(x_) + 1, np.max(y_) - np.min(y_) + 1]
 
-        self.window = max(region[2], region[3]) * self.parameters.enlarge_factor
+        self.window = max(region[2], region[3]) * self.parameters.enlarge
 
         left = max(region[0], 0)
         top = max(region[1], 0)

@@ -4,16 +4,15 @@ import cv2
 
 from mean_shift_tracker import MSParams, MeanShiftTracker
 from sequence_utils import VOTSequence
-from ncc_tracker_example import NCCTracker, NCCParams
 
 # set the path to directory where you have the sequences
-dataset_path = 'data'
-sequence = 'bolt'  # choose the sequence you want to test
+dataset_path = 'vot2016'
+sequence = 'ball1'  # choose the sequence you want to test
 
 # visualization and setup parameters
 win_name = 'Tracking window'
 reinitialize = True
-show_gt = False
+show_gt = True
 video_delay = 15
 font = cv2.FONT_HERSHEY_PLAIN
 
