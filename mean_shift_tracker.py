@@ -1,35 +1,20 @@
-import math
-
-import cv2
 import numpy as np
 
 from ex2_utils import Tracker, create_epanechnik_kernel, extract_histogram, get_patch, backproject_histogram
 from mean_shift import create_coordinates_kernels
 
 
-def mean_shift(image, patch_position, kernel_size_, q, kernel_, nbins, epsilon):
-    coords_x, coords_y = create_coordinates_kernels(kernel_size_)
-
-    x_change = float('inf')
-    y_change = float('inf')
-
-    while abs(x_change) > epsilon or abs(y_change) > epsilon:
-        patch, mask = get_patch(image, patch_position, kernel_size_)
-        p = extract_histogram(patch, nbins, weights=kernel_)
-        v = np.sqrt(np.divide(q, p + epsilon))
-        w = backproject_histogram(patch, v, nbins)
-
-        x_change = np.divide(np.sum(np.multiply(coords_x, w)), np.sum(w))
-        y_change = np.divide(np.sum(np.multiply(coords_y, w)), np.sum(w))
-
-        patch_position = patch_position[0] + x_change, patch_position[1] + y_change
-
-    return int(math.floor(patch_position[0])), int(math.floor(patch_position[1]))
-
-
 class MeanShiftTracker(Tracker):
-    def initialize(self, image, region):
+    def __init__(self, params):
+        super().__init__(params)
+        self.window = None
+        self.template = None
+        self.position = None
+        self.size = None
+        self.kernel = None
+        self.q = None
 
+    def initialize(self, image, region):
         if len(region) == 8:
             x_ = np.array(region[::2])
             y_ = np.array(region[1::2])
@@ -54,7 +39,24 @@ class MeanShiftTracker(Tracker):
         self.size = (region[2], region[3])
         self.kernel = create_epanechnik_kernel(self.size[0], self.size[1], self.parameters.kernel_sigma)
         self.q = extract_histogram(self.template, self.parameters.histogram_bins, weights=self.kernel)
+    
+    def mean_shift(self, image):
+        coords_x, coords_y = create_coordinates_kernels(self.size)
 
+        x_change = float('inf')
+        y_change = float('inf')
+
+        while abs(x_change) > self.parameters.epsilon or abs(y_change) > self.parameters.epsilon:
+            patch, mask = get_patch(image, self.position, self.size)
+            p = extract_histogram(patch, self.parameters.histogram_bins, weights=self.kernel)
+            v = np.sqrt(np.divide(self.q, p + self.parameters.epsilon))
+            w = backproject_histogram(patch, v, self.parameters.histogram_bins)
+
+            x_change = np.divide(np.sum(np.multiply(coords_x, w)), np.sum(w))
+            y_change = np.divide(np.sum(np.multiply(coords_y, w)), np.sum(w))
+
+            self.position = self.position[0] + x_change, self.position[1] + y_change
+    
     def track(self, image):
         left = max(round(self.position[0] - float(self.window) / 2), 0)
         top = max(round(self.position[1] - float(self.window) / 2), 0)
@@ -66,22 +68,12 @@ class MeanShiftTracker(Tracker):
             return [self.position[0] + self.size[0] / 2, self.position[1] + self.size[1] / 2, self.size[0],
                     self.size[1]]
 
-        new_x, new_y = mean_shift(image,
-                                  self.position,
-                                  self.size,
-                                  self.q,
-                                  self.kernel,
-                                  self.parameters.histogram_bins,
-                                  self.parameters.epsilon)
-        
-        # MODEL UPDATE
-        self.template, _ = get_patch(image, (new_x, new_y), self.size)
+        self.mean_shift(image)
+        self.template, _ = get_patch(image, self.position, self.size)
         self.q = (1 - self.parameters.update_alpha) * self.q \
                  + self.parameters.update_alpha * extract_histogram(self.template, self.parameters.histogram_bins, weights=self.kernel)
         
-        self.position = (new_x, new_y)
-
-        return [new_x, new_y, self.size[0], self.size[1]]
+        return [self.position[0], self.position[1], self.size[0], self.size[1]]
 
 
 class MSParams:
