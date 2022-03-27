@@ -14,6 +14,14 @@ def generate_responses_1():
     return gausssmooth(responses, 10)
 
 
+def generate_responses_2():
+    responses = np.zeros((100, 100), dtype=np.float32)
+    responses[80, 60] = 1
+    responses[10, 70] = 0.5
+    responses[25, 25] = 0.3
+    return gausssmooth(responses, 10)
+
+
 def get_patch(img, center, sz):
     # crop coordinates
     x0 = round(int(center[0] - sz[0] / 2))
@@ -54,6 +62,7 @@ def create_epanechnik_kernel(width, height, sigma):
     kernel = kernel / np.max(kernel)
     kernel[kernel < 0] = 0
     return kernel
+
 
 def create_uniform_kernel(width, height, sigma):
     # make sure that width and height are odd

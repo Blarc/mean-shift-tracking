@@ -3,7 +3,7 @@ import math
 import cv2
 import numpy as np
 
-from ex2_utils import generate_responses_1, show_image, get_patch
+from ex2_utils import generate_responses_1, show_image, get_patch, generate_responses_2
 
 
 def create_coordinates_kernels(size):
@@ -57,7 +57,7 @@ def mean_shift(image, patch_position, kernel_size_, epsilon):
 
 
 def run_example(img):
-    end_x, end_y, steps, iters = mean_shift(img, (80, 80), (5, 5), 0.01)
+    end_x, end_y, steps, iters = mean_shift(img, (45, 60), (5, 5), 0.01)
     responses = cv2.circle(img * 400, steps[0], radius=0, color=(255, 0, 0), thickness=-1)
     print(f'{iters} & {steps[-1]} & {img[steps[-1][1], steps[-1][0]]:.5f}')
     for step in steps[1:]:
@@ -89,7 +89,7 @@ def run_parameters_comparison(img):
 
 
 if __name__ == '__main__':
-    responses = generate_responses_1()
+    responses = generate_responses_2()
     print(f'(50, 70): {responses[50][70]:.5f}')
     print(f'(70, 50): {responses[70][50]:.5f}')
     # run_parameters_comparison(responses)
